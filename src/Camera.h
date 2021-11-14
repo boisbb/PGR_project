@@ -13,7 +13,7 @@
 
 class Camera {
 public:
-    Camera(int width, int height, glm::vec3 position);
+    Camera(int width, int height, glm::vec3 position, glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
     ~Camera();
 
     void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
@@ -25,11 +25,12 @@ public:
     glm::mat4 GetMatrix() const { return c_Matrix; }
 
     glm::vec3 GetPosition() const;
+    glm::vec3 c_Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 c_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 private:
     glm::vec3 c_Position;
-    glm::vec3 c_Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 c_Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    
     glm::mat4 c_Matrix = glm::mat4(1.0f);
     glm::mat4 c_View;
     glm::mat4 c_Projection;

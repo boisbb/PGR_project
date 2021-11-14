@@ -39,8 +39,9 @@ uniform vec3 u_LightPos;
 uniform vec3 u_ViewPos;
 uniform float u_LightStrength;
 uniform vec3 u_LightColor;
-uniform int u_HasTexture = 0;
-
+uniform vec3 u_AmbientColor;
+uniform vec3 u_SpecularColor;
+uniform vec3 u_DiffuseColor;
 // texture(u_Texture, UV)
 
 void main(){
@@ -68,14 +69,9 @@ void main(){
     vec3 specular = specularStrength * spec * u_LightColor;
 
 
-    if (u_HasTexture == 1){
-      result = (ambient + diffuse + specular) * texture(u_Texture, UV).rgb;
-    }
-    else{
-      result = (ambient + diffuse + specular) * vec3(0.5, 0.5, 0.5);
-    }
+    result = (ambient * u_AmbientColor + diffuse * u_DiffuseColor) * vec3(1, 1, 1);
 
     //result = (ambient + diffuse + specular) * vec3(0.0, 0.0, 0.0);
 
-    color = vec4(result, 1.0f);
+    color = vec4(u_DiffuseColor * (diffuse + ambient + specular), 1.0f);
 }

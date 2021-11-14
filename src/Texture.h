@@ -8,7 +8,7 @@ private:
     std::string m_FilePath;
     unsigned char* m_LocalBuffer;
     int m_Width, m_Height, m_BPP;
-    unsigned int unit;
+    unsigned int unit = 0;
     const char* m_Type;
 public:
     Texture() {};
@@ -23,4 +23,5 @@ public:
     inline int GetWidth() const{ return m_Width; }
     inline int GetHeight() const{ return m_Height; }
     inline const char* GetType() const{ return m_Type; }
+    inline std::string GetPath() const {return m_FilePath; }
 };

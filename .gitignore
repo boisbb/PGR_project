@@ -1,1 +1,4 @@
 *.o
+*.blend
+*.fbx
+res/models*

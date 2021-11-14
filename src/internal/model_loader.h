@@ -4,7 +4,7 @@
 #include "../Mesh.h"
 
 
-bool loadOBJ(const char* path, std::vector<glm::vec3>& out_vertices, std::vector<glm::vec2>& out_uvs, std::vector<glm::vec3>& out_normals);
+bool loadAssImpEnhanced(const char* path, std::vector<Mesh>& meshes);
 
 bool loadAssImpMeshes(const char* path, std::vector<Mesh>& meshes);
 

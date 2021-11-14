@@ -31,7 +31,7 @@ VertexBuffer::VertexBuffer(std::vector<glm::vec2>& vertices)
 }
 
 VertexBuffer::~VertexBuffer(){
-  GLCall(glDeleteBuffers(1, &m_RendererID));
+  //GLCall(glDeleteBuffers(1, &m_RendererID));
 }
 
 void VertexBuffer::Bind() const {

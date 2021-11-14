@@ -31,6 +31,8 @@ http://docs.gl/
 
 #include "models/TestModel.h"
 #include "models/Suzanne.h"
+#include "models/TexturedCube.h"
+#include "models/PorscheCayman.h"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -50,7 +52,7 @@ int main(int argc, char* argv[])
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "PGR Project", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -84,6 +86,8 @@ int main(int argc, char* argv[])
     currentTestModel = testModelMenu;
 
     testModelMenu->RegisterTestModel<test_model::Suzanne>("Suzanne", window);
+    testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window);
+    testModelMenu->RegisterTestModel<test_model::PorscheCayman>("PorscheCayman", window);
 
     if (argc == 2)
     {

@@ -1,4 +1,4 @@
-#include "Suzanne.h"
+#include "TexturedCube.h"
 #include "../Debug.h"
 
 #include "../vendor/glm/glm.hpp"
@@ -10,21 +10,20 @@
 
 namespace test_model
 {
-    Suzanne::Suzanne() 
+    TexturedCube::TexturedCube() 
         : m_ClearColor {0.2f, 0.3f, 0.8f, 1.0f}
     {
     }
 
-    Suzanne::Suzanne(GLFWwindow* window) 
+    TexturedCube::TexturedCube(GLFWwindow* window) 
         : m_Window(window)
     {
         m_Shader = std::make_unique<Shader>("res/shaders/lighting.shader");
         m_Camera = std::make_unique<Camera>(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
-        m_Texture = std::make_unique<Texture>("res/textures/uvmap_suzanne.png", 0);
+        m_Texture = std::make_unique<Texture>("res/textures/uvmap.png", 0);
 
-        std::cout<<"before"<<std::endl;
-        m_SuzanneModel = std::make_unique<Model>("res/models/suzanne.obj");
-        m_SuzanneModel->AddMeshTexture(*m_Texture, 0);
+        m_CubeModel = std::make_unique<Model>("res/models/cube.obj");
+        m_CubeModel->AddMeshTexture(*m_Texture, 0);
 
         objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
         objectModelInit = glm::mat4(1.0f);
@@ -35,16 +34,16 @@ namespace test_model
         m_Shader->SetUniformMat4f("u_ModelMatrix", objectModel);
     }
     
-    Suzanne::~Suzanne() 
+    TexturedCube::~TexturedCube() 
     {
     }
     
-    void Suzanne::OnUpdate(float deltaTime) 
+    void TexturedCube::OnUpdate(float deltaTime) 
     {
         
     }
     
-    void Suzanne::OnRender() 
+    void TexturedCube::OnRender() 
     {
         GLCall(glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f));
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -59,17 +58,17 @@ namespace test_model
 
         m_Shader->SetUniform1f("u_LightStrength", lightStrength);
         m_Shader->SetUniform3f("u_LightColor", lightColor.r, lightColor.g, lightColor.b);
-        m_Shader->SetUniform3f("u_ViewPos", viewPos.r, viewPos.g, viewPos.b);
+        m_Shader->SetUniformMat4f("u_ModelMatrix", objectModel);
         m_Shader->SetUniform3f("u_LightPos", lightPos.x, lightPos.y, lightPos.z);
         m_Shader->SetUniform1i("u_HasTexture", 1);
         m_Camera->Matrix(*m_Shader, "u_CameraMatrix");
         
-        m_SuzanneModel->Draw(*m_Shader, *m_Camera);
+        m_CubeModel->Draw(*m_Shader, *m_Camera);
 
 
     }
     
-    void Suzanne::OnImGuiRender() 
+    void TexturedCube::OnImGuiRender() 
     {
         if (ImGui::CollapsingHeader("Light")){
             ImGui::Indent();

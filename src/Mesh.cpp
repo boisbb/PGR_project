@@ -16,6 +16,23 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
     layout.Push<float>(2);
     layout.Push<float>(3);
     m_VAO->AddBuffer(*m_VertexBuffer, layout);
+    
+
+}
+
+Mesh::Mesh(std::vector<Vertex>& vertices) 
+    : m_Vertices(vertices)
+{
+    m_VAO = new VertexArray();
+    m_VAO->Bind();
+    m_VertexBuffer = new VertexBuffer(m_Vertices);
+
+    VertexBufferLayout layout;
+    layout.Push<float>(3);
+    layout.Push<float>(2);
+    layout.Push<float>(3);
+    m_VAO->AddBuffer(*m_VertexBuffer, layout);
+    
 
 }
 
@@ -32,7 +49,7 @@ void Mesh::AddTexture(Texture& newTexture)
     HasTextures = true;
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera, glm::vec3 scale) 
+void Mesh::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 translate) 
 {
     
     shader.Bind();
@@ -62,11 +79,11 @@ void Mesh::Draw(Shader& shader, Camera& camera, glm::vec3 scale)
     //camera.Matrix(shader, "u_CameraMatrix");
     glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::mat4 objectModelInit = glm::mat4(1.0f);
-    objectModelInit = glm::translate(objectModelInit, objectPos);
+    objectModelInit = glm::translate(objectModelInit, translate);
     objectModelInit = glm::scale(objectModelInit, scale);
 
     shader.SetUniformMat4f("u_ModelMatrix", model_matrix);
-    shader.SetUniformMat4f("u_Scale", objectModelInit);
+    shader.SetUniformMat4f("u_Transform", objectModelInit);
 
     renderer.Draw(*m_VAO, *m_IndexBuffer, shader);
 

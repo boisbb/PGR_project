@@ -33,6 +33,7 @@ namespace test_model {
         std::unique_ptr<Camera> m_Camera;
         std::unique_ptr<Texture> m_Texture;
         std::unique_ptr<Model> m_Model;
+        std::unique_ptr<Model> m_RoadModel;
         std::unique_ptr<CubeMap> m_SkyboxMap;
 
         glm::vec3 objectPos;
@@ -40,7 +41,7 @@ namespace test_model {
         glm::mat4 objectModel = glm::mat4(1.0f);
         glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-        float lightStrength = 0.1f;
+        float lightStrength = 0.8f;
         glm::vec3 lightPos = glm::vec3(4,4,4);
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 

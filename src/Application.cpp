@@ -33,6 +33,9 @@ http://docs.gl/
 #include "models/Suzanne.h"
 #include "models/TexturedCube.h"
 #include "models/PorscheCayman.h"
+#include "models/ChevyCorvette.h"
+#include "models/ChevyCamaro.h"
+#include "models/HondaCivic.h"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -88,31 +91,15 @@ int main(int argc, char* argv[])
     testModelMenu->RegisterTestModel<test_model::Suzanne>("Suzanne", window);
     testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window);
     testModelMenu->RegisterTestModel<test_model::PorscheCayman>("PorscheCayman", window);
+    testModelMenu->RegisterTestModel<test_model::HondaCivic>("HondaCivic", window);
+    testModelMenu->RegisterTestModel<test_model::ChevyCamaro>("ChevyCamaro", window);
+    testModelMenu->RegisterTestModel<test_model::ChevyCorvette>("ChevyCorvette", window);
 
     if (argc == 2)
     {
         currentTestModel = testModelMenu->SetTestModel(argv[1]);
         
     }
-    /*
-
-    Shader m_Shader("res/shaders/lighting.shader");
-    Camera m_Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
-    Texture m_Texture("res/textures/uvmap_suzanne.png", 0);
-    
-    Model cubeModel("res/models/suzanne.obj");
-    cubeModel.AddMeshTexture(m_Texture, 0);
-
-    glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::mat4 objectModel = glm::mat4(1.0f);
-    objectModel = glm::translate(objectModel, objectPos);
-
-    m_Shader.Bind();
-    m_Shader.SetUniformMat4f("u_ModelMatrix", objectModel);
-    //m_Shader.SetUniform4f("u_LightColor", lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    //m_Shader.SetUniform3f("u_LightPosition", lightPos.x, lightPos.y, lightPos.z);
-    */
-
 
     while (!glfwWindowShouldClose(window))
     {
@@ -135,33 +122,6 @@ int main(int argc, char* argv[])
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
-
-
-        /*
-        GLCall(glClearColor(0.07f, 0.13f, 0.17f, 1.0f));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        m_Camera.Input(window);
-        m_Camera.updateMatrix(45.0f, 0.1f, 100.0f);
-        
-        m_Shader.Bind();
-
-        //glm::vec3 camPos = m_Camera.GetPosition();
-        //m_Shader.SetUniform3f("u_CameraPosition", camPos.x, camPos.y, camPos.z);
-
-        // Setting transformation matrices
-        glm::mat4 view = m_Camera.GetView();
-        glm::vec3 lightPos = glm::vec3(4,4,4);
-        glm::vec3 viewPos = m_Camera.GetPosition();
-
-        
-        //m_Shader.SetUniformMat4f("u_View", view);
-        m_Shader.SetUniform3f("u_ViewPos", viewPos.x, viewPos.y, viewPos.z);
-        m_Shader.SetUniformMat4f("u_ModelMatrix", objectModel);
-        m_Shader.SetUniform3f("u_LightPos", lightPos.x, lightPos.y, lightPos.z);
-        m_Camera.Matrix(m_Shader, "u_CameraMatrix");
-        
-        cubeModel.Draw(m_Shader, m_Camera);
-        */
         glfwSwapBuffers(window);
 
         glfwPollEvents();

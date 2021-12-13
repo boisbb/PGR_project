@@ -5,6 +5,10 @@
 #include <fstream>
 #include <sstream>
 
+/*
+https://www.youtube.com/c/TheChernoProject
+*/
+
 Shader::Shader(const string& filepath)
 	: m_FilePath(filepath), m_RendererID(0)
 {

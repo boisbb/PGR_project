@@ -2,7 +2,7 @@
 CC = g++
 
 #CFLAGS specifies the additional compilation options we're using
-CFLAGS = # -fsanitize=address -fsanitize=undefined
+CFLAGS = -g -lm # -fsanitize=address -fsanitize=undefined
 
 #LFLAGS specifies the libraries we're linking against
 LFLAGS = -lassimp -lglfw -lGL -lGLU -lrt -lm -ldl -lXrandr -lXinerama -lXcursor -lXext -lXrender -lXfixes -lX11 -lpthread -lxcb -lXau -lXdmcp -lGLEW -lGLU -lGL -lm -ldl -lXdamage -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp

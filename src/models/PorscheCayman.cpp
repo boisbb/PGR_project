@@ -26,11 +26,26 @@ namespace test_model
                                             glm::vec3(0, 1, 0)
                                             );
         //m_Texture = std::make_unique<Texture>("res/models/porsche/Porche.png", 0);
-        m_Model = std::make_unique<Model>("res/models/porsche/porsche.obj");
+        
+        std::cout<<"before Porsche loaded"<<std::endl;
+        m_Model = std::make_unique<Model>("res/models/porsche/porsche.obj", "res/models/porsche/");
+        std::cout<<"Porsche loaded"<<std::endl;
+        m_RoadModel = std::make_unique<Model>("res/models/road/old_road.obj", "res/models/road/");
         //m_Model->AddMeshTexture(*m_Texture, 23);
 
         m_SkyboxShader = std::make_unique<Shader>("res/shaders/skybox.shader");
-        m_SkyboxMap = std::make_unique<CubeMap>();
+
+        vector<std::string> faces
+        {
+            "res/textures/skybox/right.jpg",
+            "res/textures/skybox/left.jpg",
+            "res/textures/skybox/top.jpg",
+            "res/textures/skybox/bottom.jpg",
+            "res/textures/skybox/front.jpg",
+            "res/textures/skybox/back.jpg"
+        };
+
+        m_SkyboxMap = std::make_unique<CubeMap>(faces);
 
         objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
         objectModelInit = glm::mat4(1.0f);
@@ -83,6 +98,8 @@ namespace test_model
         m_Shader->SetUniformMat4f("u_CameraMatrix", camMetrix);
         m_Shader->SetUniform3f("u_CameraPos", viewPos.x, viewPos.y, viewPos.z);
         m_Model->Draw(*m_Shader, *m_Camera, scale);
+
+        m_RoadModel->Draw(*m_Shader, *m_Camera, scale);
 
     }
     

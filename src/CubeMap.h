@@ -13,7 +13,7 @@
 class CubeMap
 {
 public:
-    CubeMap();
+    CubeMap(vector<std::string> faces);
     ~CubeMap();
     void Draw(Shader& shader, Camera& camera);
 

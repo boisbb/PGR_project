@@ -1,4 +1,7 @@
 #include"Model.h"
+#include <iostream>
+#include <filesystem>
+#include <sys/stat.h>
 
 inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from)
 {
@@ -13,16 +16,24 @@ inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from)
     return to;
 }
 
+// https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-14-17-c
+inline bool file_exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}
+
+
 
 Model::Model() 
 {
 	
 }
 
-Model::Model(const char* file)
+Model::Model(std::string model, std::string resources)
+    : model_path(model), resources_path(resources)
 {
 	// Make a JSON object
-    bool res = loadModel(file);
+    bool res = loadModel();
 }
 
 Model::~Model() 
@@ -30,16 +41,16 @@ Model::~Model()
     
 }
 
-void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale)
+void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 translate)
 {
 	// Go over all meshes and draw each one
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{        
-        //std::cout<<i<<std::endl;
-        //std::cout<<meshes[i].HasColor()<<std::endl;
         // POSSIBLE SPEED DECREASE MAYBE REDO
-        if(meshes[i].GetOpacity() == 1.0)
-            meshes[i].Mesh::Draw(shader, camera, scale);
+        if(meshes[i].GetOpacity() == 1.0){
+            //std::cout<<i<<std::endl;
+            meshes[i].Mesh::Draw(shader, camera, scale, translate);
+        }
 	}
     
     glEnable(GL_CULL_FACE);
@@ -47,11 +58,9 @@ void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale)
 
     for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-        //std::cout<<i<<std::endl;
-        //std::cout<<meshes[i].HasColor()<<std::endl;
         // POSSIBLE SPEED DECREASE MAYBE REDO
         if(meshes[i].GetOpacity() != 1.0){
-            meshes[i].Mesh::Draw(shader, camera);
+            meshes[i].Mesh::Draw(shader, camera, scale, translate);
         }
 	}
 
@@ -60,11 +69,9 @@ void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale)
 
     for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-        //std::cout<<i<<std::endl;
-        //std::cout<<meshes[i].HasColor()<<std::endl;
         // POSSIBLE SPEED DECREASE MAYBE REDO
         if(meshes[i].GetOpacity() != 1.0){
-            meshes[i].Mesh::Draw(shader, camera);
+            meshes[i].Mesh::Draw(shader, camera, scale, translate);
         }
 	}
 
@@ -159,14 +166,11 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
 
     if(mesh->mMaterialIndex >= 0)
     {
-
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         aiString texture_file;
-
         // TRY TEXTURES
         if (material->GetTextureCount(aiTextureType_AMBIENT))
         {
-            /* code */
             material->GetTexture(aiTextureType_AMBIENT, 0, &texture_file);
             std::cout<<"Ambient texture"<<std::endl;
             std::cout<<"Mtl name: " << material->GetName().C_Str() << std::endl;
@@ -174,7 +178,6 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
         }
         else if (material->GetTextureCount(aiTextureType_SPECULAR))
         {
-            /* code */
             material->GetTexture(aiTextureType_SPECULAR, 0, &texture_file);
             std::cout<<"Specular texture"<<std::endl;
             std::cout<<"Mtl name: " << material->GetName().C_Str() << std::endl;
@@ -182,7 +185,6 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
         }
         else if (material->GetTextureCount(aiTextureType_DIFFUSE))
         {
-            /* code */
             material->GetTexture(aiTextureType_DIFFUSE, 0, &texture_file);
             std::cout<<"Diffuse texture"<<std::endl;
             std::cout<<"Mtl name: " << material->GetName().C_Str() << std::endl;
@@ -190,7 +192,6 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
         }
         else if (material->GetTextureCount(aiTextureType_UNKNOWN))
         {
-            /* code */
             material->GetTexture(aiTextureType_UNKNOWN, 0, &texture_file);
             std::cout<<"Unknown texture"<<std::endl;
             std::cout<<"Mtl name: " << material->GetName().C_Str() << std::endl;
@@ -208,9 +209,6 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
 
             float opacity = 0.0;
             material->Get(AI_MATKEY_OPACITY, opacity);
-
-            //std::cout<<material->GetName().C_Str()<<std::endl;
-            //std::cout<<opacity<<std::endl;
 
             glm::vec3 ambientV = {ambient.r, ambient.g, ambient.b};
             glm::vec3 diffuseV = {diffuse.r, diffuse.g, diffuse.b};
@@ -230,25 +228,25 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
         else {
             std::string fileStr(texture_file.C_Str());
             std::cout<<"Texture should be in a file, go check it!"<<std::endl;
-            Texture modelTexture("res/models/porsche/Porche.png", 1);
+            
+            std::string tex_path = resources_path + fileStr;
+            std::cout<<tex_path<<std::endl;
+
+            if (!file_exists(tex_path))
+            {
+                std::cout<<"ERROR: Impossible to find the texture: "<<tex_path<<std::endl;
+                return;
+            }
+            
+
+            // Watch out for more textures? TODO
+            Texture modelTexture(tex_path, 1);
 
             std::cout<<meshes.size() - 1<<std::endl;
 
             meshes[meshes.size() - 1].AddTexture(modelTexture);
 
         }
-
-        /*
-        aiString texture_file;
-        std::cout<<mesh->mMaterialIndex<<std::endl;
-        aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-        //std::cout<<material->GetName().C_Str()<<std::endl;
-        std::cout<<material->GetTextureCount(aiTextureType_AMBIENT)<<std::endl;
-        std::cout<<material->GetTextureCount(aiTextureType_SPECULAR)<<std::endl;
-        std::cout<<material->GetTextureCount(aiTextureType_DIFFUSE)<<std::endl;
-        std::cout<<material->GetTextureCount(aiTextureType_UNKNOWN)<<std::endl;
-        material->GetTexture(aiTextureType_DIFFUSE, 0, &texture_file);
-        */
     }
 }
 
@@ -269,18 +267,18 @@ void Model::processNode(aiNode *node, const aiScene *scene, aiMatrix4x4 accTrans
 }
 
 
-bool Model::loadModel(const char* path)
+bool Model::loadModel()
 {
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate);
+    std::cout<<"before scene loaded"<<std::endl;
+    const aiScene *scene = import.ReadFile(model_path.c_str(), aiProcess_Triangulate);
+    std::cout<<"after scene loaded"<<std::endl;
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
         cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
         return false;
     }
-
-    //aiMatrix4x4 accTransform;
 
     processNode(scene->mRootNode, scene, scene->mRootNode->mTransformation);
 

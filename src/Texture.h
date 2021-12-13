@@ -24,4 +24,5 @@ public:
     inline int GetHeight() const{ return m_Height; }
     inline const char* GetType() const{ return m_Type; }
     inline std::string GetPath() const {return m_FilePath; }
+    inline const unsigned int GetID() const { return m_RendererID; }
 };

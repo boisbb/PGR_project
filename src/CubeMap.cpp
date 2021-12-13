@@ -1,72 +1,63 @@
 #include "CubeMap.h"
 
 #include "vendor/stb_image/stb_image.h"
+#include "vendor/glm/glm.hpp"
+#include "vendor/glm/gtc/matrix_transform.hpp"
 
 
-CubeMap::CubeMap(){
-    float skyboxVertices[] = {
+CubeMap::CubeMap(std::vector<std::string> faces){
+    std::vector<glm::vec3> skyboxVertices = {
         // positions          
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
+        glm::vec3{-1.0f,  1.0f, -1.0f},
+        glm::vec3{-1.0f, -1.0f, -1.0f},
+        glm::vec3{ 1.0f, -1.0f, -1.0f},
+        glm::vec3{ 1.0f, -1.0f, -1.0f},
+        glm::vec3{ 1.0f,  1.0f, -1.0f},
+        glm::vec3{-1.0f,  1.0f, -1.0f},
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
+        glm::vec3{-1.0f, -1.0f,  1.0f},
+        glm::vec3{-1.0f, -1.0f, -1.0f},
+        glm::vec3{-1.0f,  1.0f, -1.0f},
+        glm::vec3{-1.0f,  1.0f, -1.0f},
+        glm::vec3{-1.0f,  1.0f,  1.0f},
+        glm::vec3{-1.0f, -1.0f,  1.0f},
 
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
+        glm::vec3{ 1.0f, -1.0f, -1.0f},
+        glm::vec3{ 1.0f, -1.0f,  1.0f},
+        glm::vec3{ 1.0f,  1.0f,  1.0f},
+        glm::vec3{ 1.0f,  1.0f,  1.0f},
+        glm::vec3{ 1.0f,  1.0f, -1.0f},
+        glm::vec3{ 1.0f, -1.0f, -1.0f},
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
+        glm::vec3{-1.0f, -1.0f,  1.0f},
+        glm::vec3{-1.0f,  1.0f,  1.0f},
+        glm::vec3{ 1.0f,  1.0f,  1.0f},
+        glm::vec3{ 1.0f,  1.0f,  1.0f},
+        glm::vec3{ 1.0f, -1.0f,  1.0f},
+        glm::vec3{-1.0f, -1.0f,  1.0f},
 
-        -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
+        glm::vec3{-1.0f,  1.0f, -1.0f},
+        glm::vec3{ 1.0f,  1.0f, -1.0f},
+        glm::vec3{ 1.0f,  1.0f,  1.0f},
+        glm::vec3{ 1.0f,  1.0f,  1.0f},
+        glm::vec3{-1.0f,  1.0f,  1.0f},
+        glm::vec3{-1.0f,  1.0f, -1.0f},
 
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
+        glm::vec3{-1.0f, -1.0f, -1.0f},
+        glm::vec3{-1.0f, -1.0f,  1.0f},
+        glm::vec3{ 1.0f, -1.0f, -1.0f},
+        glm::vec3{ 1.0f, -1.0f, -1.0f},
+        glm::vec3{-1.0f, -1.0f,  1.0f},
+        glm::vec3{ 1.0f, -1.0f,  1.0f}
     };
 
-    // skybox VAO
-    glGenVertexArrays(1, &skyboxVAO);
-    glGenBuffers(1, &skyboxVBO);
-    glBindVertexArray(skyboxVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    m_VAO = new VertexArray();
+    m_VAO->Bind();
+    m_VertexBuffer = new VertexBuffer(skyboxVertices);
 
-    vector<std::string> faces
-    {
-        "res/textures/skybox/right.jpg",
-        "res/textures/skybox/left.jpg",
-        "res/textures/skybox/top.jpg",
-        "res/textures/skybox/bottom.jpg",
-        "res/textures/skybox/front.jpg",
-        "res/textures/skybox/back.jpg"
-    };
+    VertexBufferLayout layout;
+    layout.Push<float>(3);
+    m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
     skyboxTexture = loadCubemap(faces);
 
@@ -85,11 +76,11 @@ void CubeMap::Draw(Shader& shader, Camera& camera){
     shader.SetUniformMat4f("u_Projection", projection);
     shader.SetUniformMat4f("u_Scale", objectModelInit);
     // skybox cube
-    glBindVertexArray(skyboxVAO);
+    m_VAO->Bind();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
+    m_VAO->Unbind();
 
     glDepthFunc(GL_LESS);
 }

@@ -23,7 +23,7 @@ namespace test_model
         m_Texture = std::make_unique<Texture>("res/textures/uvmap.png", 0);
 
         m_CubeModel = std::make_unique<Model>("res/models/cube.obj");
-        m_CubeModel->AddMeshTexture(*m_Texture, 0);
+        m_CubeModel->AddMeshTexture(*m_Texture, 1);
 
         objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
         objectModelInit = glm::mat4(1.0f);

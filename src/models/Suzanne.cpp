@@ -20,7 +20,7 @@ namespace test_model
     {
         m_Shader = std::make_unique<Shader>("res/shaders/lighting.shader");
         m_Camera = std::make_unique<Camera>(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
-        m_Texture = std::make_unique<Texture>("res/textures/uvmap_suzanne.png", 0);
+        m_Texture = std::make_unique<Texture>("res/textures/uvmap_suzanne.png", 1);
 
         std::cout<<"before"<<std::endl;
         m_SuzanneModel = std::make_unique<Model>("res/models/suzanne.obj");

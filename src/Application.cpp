@@ -31,14 +31,12 @@ http://docs.gl/
 
 #include "models/TestModel.h"
 #include "models/Suzanne.h"
+#include "models/ShadowMapping.h"
 #include "models/TexturedCube.h"
-#include "models/PorscheCayman.h"
-#include "models/ChevyCorvette.h"
-#include "models/ChevyCamaro.h"
-#include "models/HondaCivic.h"
+#include "models/CarModels.h"
 
-#define WIDTH 800
-#define HEIGHT 800
+int WIDTH = 1200;
+int HEIGHT = 800;
 
 
 int main(int argc, char* argv[])
@@ -88,13 +86,10 @@ int main(int argc, char* argv[])
     test_model::TestModelMenu* testModelMenu = new test_model::TestModelMenu(currentTestModel);
     currentTestModel = testModelMenu;
 
-    testModelMenu->RegisterTestModel<test_model::Suzanne>("Suzanne", window);
-    testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window);
-    testModelMenu->RegisterTestModel<test_model::PorscheCayman>("PorscheCayman", window);
-    testModelMenu->RegisterTestModel<test_model::HondaCivic>("HondaCivic", window);
-    testModelMenu->RegisterTestModel<test_model::ChevyCamaro>("ChevyCamaro", window);
-    testModelMenu->RegisterTestModel<test_model::ChevyCorvette>("ChevyCorvette", window);
-
+    testModelMenu->RegisterTestModel<test_model::Suzanne>("Suzanne", window, WIDTH, HEIGHT);
+    testModelMenu->RegisterTestModel<test_model::ShadowMapping>("ShadowMapping", window, WIDTH, HEIGHT);
+    testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window, WIDTH, HEIGHT);
+    testModelMenu->RegisterTestModel<test_model::CarModels>("CarModels", window, WIDTH, HEIGHT);
     if (argc == 2)
     {
         currentTestModel = testModelMenu->SetTestModel(argv[1]);
@@ -103,8 +98,19 @@ int main(int argc, char* argv[])
 
     while (!glfwWindowShouldClose(window))
     {
-        GLCall(glClearColor(0.07f, 0.13f, 0.17f, 1.0f));
+        GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
         renderer.Clear();
+
+        int w, h;
+        glfwGetFramebufferSize(window, &w, &h);
+        if (w != WIDTH || h != HEIGHT)
+        {
+            WIDTH = w;
+            HEIGHT = h;
+            GLCall(glViewport(0,0, w, h));
+            currentTestModel->ModelReinit(w, h);
+        }
+        
 
         ImGui_ImplGlfwGL3_NewFrame();
         ImGui::Begin("Menu");

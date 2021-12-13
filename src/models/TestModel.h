@@ -17,6 +17,27 @@ namespace test_model {
         virtual void OnUpdate(float deltaTime) {}
         virtual void OnRender() {}
         virtual void OnImGuiRender() {}
+        virtual void ModelReinit(int width, int height) {}
+
+
+        std::vector<std::string> getSkyboxFaces(std::string skyboxName)
+        {
+            std::vector<std::string> faces1
+            {
+                "res/textures/skyboxes/" + skyboxName + "_posx.jpg",
+                "res/textures/skyboxes/" + skyboxName + "_negx.jpg",
+                "res/textures/skyboxes/" + skyboxName + "_posy.jpg",
+                "res/textures/skyboxes/" + skyboxName + "_negy.jpg",
+                "res/textures/skyboxes/" + skyboxName + "_posz.jpg",
+                "res/textures/skyboxes/" + skyboxName + "_negz.jpg"
+            };
+
+            return faces1;
+
+
+        }
+
+
     };
 
     class TestModelMenu : public TestModel{
@@ -34,11 +55,12 @@ namespace test_model {
         }
 
         template<typename T>
-        void RegisterTestModel(const std::string& name, GLFWwindow* window){
+        void RegisterTestModel(const std::string& name, GLFWwindow* window, int width, int height){
             std::cout << "Registering test_model " << name << std::endl;
 
-            m_TestModels.push_back(std::make_pair(name, [window]() { return new T(window); }));
+            m_TestModels.push_back(std::make_pair(name, [window, width, height]() { return new T(window, width, height); }));
         }
+
         
     private:
         TestModel*& m_CurrentTestModel;

@@ -17,9 +17,11 @@ namespace test_model {
     class TexturedCube : public TestModel{
     public:
         TexturedCube();
-        TexturedCube(GLFWwindow* window);
+        TexturedCube(GLFWwindow* window, int width, int height);
         ~TexturedCube();
 
+        void modelInit();
+        void ModelReinit(int width, int height) override;
         void OnUpdate(float deltaTime) override;
         void OnRender() override;
         void OnImGuiRender() override;
@@ -40,7 +42,8 @@ namespace test_model {
         glm::vec3 lightPos = glm::vec3(4,4,4);
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
-
+        int WIDTH;
+        int HEIGHT;
         
     };
 }

@@ -10,13 +10,13 @@ out vec2 TexCoords;
 
 uniform mat4 u_CameraMatrix;
 uniform mat4 u_ModelMatrix;
-uniform mat4 u_Scale;
+uniform mat4 u_Transform;
 void main()
 {
     TexCoords = a_UV;
-    Normal = mat3(transpose(inverse(u_Scale *u_ModelMatrix))) * a_Normal;
-    Position = vec3(u_Scale * u_ModelMatrix * vec4(a_Pos, 1.0));
-    gl_Position = u_CameraMatrix * vec4(u_Scale * u_ModelMatrix * vec4(a_Pos, 1.0f));
+    Normal = mat3(transpose(inverse(u_Transform *u_ModelMatrix))) * a_Normal;
+    Position = vec3(u_Transform * u_ModelMatrix * vec4(a_Pos, 1.0));
+    gl_Position = u_CameraMatrix * vec4(u_Transform * u_ModelMatrix * vec4(a_Pos, 1.0f));
 }  
 
 #shader fragment
@@ -68,5 +68,4 @@ void main()
         FragColor = vec4((ambient + diffuse + specular), 1.0f);
         //FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
-    //FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 }

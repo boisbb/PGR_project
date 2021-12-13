@@ -5,9 +5,6 @@
 #include "../vendor/glm/gtc/matrix_transform.hpp"
 #include "../vendor/imgui/imgui.h"
 
-#define WIDTH 800
-#define HEIGHT 800
-
 namespace test_model
 {
     TexturedCube::TexturedCube() 
@@ -15,14 +12,19 @@ namespace test_model
     {
     }
 
-    TexturedCube::TexturedCube(GLFWwindow* window) 
-        : m_Window(window)
+    TexturedCube::TexturedCube(GLFWwindow* window, int width, int height) 
+        : m_Window(window), WIDTH(width), HEIGHT(height)
+    {
+        modelInit();
+    }
+
+    void TexturedCube::modelInit()
     {
         m_Shader = std::make_unique<Shader>("res/shaders/lighting.shader");
         m_Camera = std::make_unique<Camera>(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
         m_Texture = std::make_unique<Texture>("res/textures/uvmap.png", 0);
 
-        m_CubeModel = std::make_unique<Model>("res/models/cube.obj");
+        m_CubeModel = std::make_unique<Model>("res/models/other/cube.obj");
         m_CubeModel->AddMeshTexture(*m_Texture, 1);
 
         objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -36,6 +38,13 @@ namespace test_model
     
     TexturedCube::~TexturedCube() 
     {
+    }
+
+    void TexturedCube::ModelReinit(int width, int height) 
+    {
+        WIDTH = width;
+        HEIGHT = height;
+        modelInit();
     }
     
     void TexturedCube::OnUpdate(float deltaTime) 

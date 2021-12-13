@@ -1,3 +1,13 @@
-http://www.3delyvisions.com/skf1.htm
+Author
+======
 
-These files were downloaded from the above URL and were licensed as CC-BY 3.0 Unported on 2012/11/7
+This is the work of Emil Persson, aka Humus.
+http://www.humus.name
+
+
+
+License
+=======
+
+This work is licensed under a Creative Commons Attribution 3.0 Unported License.
+http://creativecommons.org/licenses/by/3.0/

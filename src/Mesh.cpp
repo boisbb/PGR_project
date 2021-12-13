@@ -77,7 +77,7 @@ void Mesh::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 trans
 
     //shader.SetUniform3f("u_CameraPosition", camPos.x, camPos.y, camPos.z);
     //camera.Matrix(shader, "u_CameraMatrix");
-    glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    //glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::mat4 objectModelInit = glm::mat4(1.0f);
     objectModelInit = glm::translate(objectModelInit, translate);
     objectModelInit = glm::scale(objectModelInit, scale);

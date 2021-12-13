@@ -23,7 +23,7 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
     c_Projection = glm::mat4(1.0f);
 
     c_View = glm::lookAt(c_Position, c_Position + c_Orientation, c_Up);
-    c_Projection = glm::perspective(glm::radians(FOVdeg), (float)(c_Width / c_Height), nearPlane, farPlane);
+    c_Projection = glm::perspective(glm::radians(FOVdeg), (float)c_Width / c_Height, nearPlane, farPlane);
 
     
     c_Matrix = c_Projection * c_View;
@@ -75,7 +75,8 @@ void Camera::Input(GLFWwindow* window)
         glfwGetCursorPos(window, &mouseX, &mouseY);
 
         float rotx = sensitivity * (float)(mouseY - (c_Height / 2)) / c_Height;
-        float roty = sensitivity * (float)(mouseX - (c_Height / 2)) / c_Height;
+        float roty = sensitivity * (float)(mouseX - (c_Width / 2)) / c_Width;
+
         glm::vec3 newOrientation = glm::rotate(c_Orientation, glm::radians(-rotx), glm::normalize(glm::cross(c_Orientation, c_Up)));
 
         if (!((glm::angle(newOrientation, c_Up) <= glm::radians(0.5f)) || (glm::angle(newOrientation, -c_Up) <= glm::radians(5.0f))))

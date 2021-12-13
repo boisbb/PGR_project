@@ -48,7 +48,6 @@ void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 tran
 	{        
         // POSSIBLE SPEED DECREASE MAYBE REDO
         if(meshes[i].GetOpacity() == 1.0){
-            //std::cout<<i<<std::endl;
             meshes[i].Mesh::Draw(shader, camera, scale, translate);
         }
 	}
@@ -241,9 +240,6 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
 
             // Watch out for more textures? TODO
             Texture modelTexture(tex_path, 1);
-
-            std::cout<<meshes.size() - 1<<std::endl;
-
             meshes[meshes.size() - 1].AddTexture(modelTexture);
 
         }
@@ -270,9 +266,7 @@ void Model::processNode(aiNode *node, const aiScene *scene, aiMatrix4x4 accTrans
 bool Model::loadModel()
 {
     Assimp::Importer import;
-    std::cout<<"before scene loaded"<<std::endl;
     const aiScene *scene = import.ReadFile(model_path.c_str(), aiProcess_Triangulate);
-    std::cout<<"after scene loaded"<<std::endl;
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {

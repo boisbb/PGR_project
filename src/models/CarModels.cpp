@@ -38,11 +38,16 @@ namespace test_model
         modelInit();
     }
 
+    /**
+     * @brief Initializes the test model.
+     * 
+     */
     void CarModels::modelInit()
     {
 
         modelsVec = searchDirectory("res/models", 0);
         skyboxesVec = searchDirectory("res/textures/skyboxes", 9);
+        planesVec = searchDirectory("res/planes", 0);
 
 
         sort( skyboxesVec.begin(), skyboxesVec.end() );
@@ -52,7 +57,7 @@ namespace test_model
         scale = glm::vec3(1.0,1.0,1.0);
 
         m_Model = std::make_unique<Model>("res/models/porsche/porsche.obj", "res/models/porsche/");
-        m_PlaneModel = std::make_unique<Model>("res/models/road/road.obj", "res/models/road/");
+        m_PlaneModel = std::make_unique<Model>("res/planes/road/road.obj", "res/planes/road/");
 
         glEnable(GL_DEPTH_TEST);
         m_Camera = std::make_unique<Camera>(WIDTH, HEIGHT, 
@@ -137,23 +142,37 @@ namespace test_model
 
     }
     
+
+    /**
+     * @brief Reinitializes the test model in case of window resize.
+     * 
+     * @param width New width.
+     * @param height New height.
+     */
     void CarModels::ModelReinit(int width, int height) 
     {
         WIDTH = width;
         HEIGHT = height;
         modelInit();
     }
+
     
     CarModels::~CarModels() 
     {
 
     }
+
     
     void CarModels::OnUpdate(float deltaTime) 
     {
         
     }
+
     
+    /**
+     * @brief Does the drawing.
+     * 
+     */
     void CarModels::OnRender() 
     {
         glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f);
@@ -316,6 +335,11 @@ namespace test_model
 
     }
     
+
+    /**
+     * @brief Creates GUI elements.
+     * 
+     */
     void CarModels::OnImGuiRender() 
     {
         if (ImGui::CollapsingHeader("Light")){
@@ -343,7 +367,6 @@ namespace test_model
 
                 if (currentSkybox != prevSkybox)
                 {
-                    std::cout<<"create new skybox"<<std::endl;
                     prevSkybox = currentSkybox;
                     std::vector<std::string> newFaces = getSkyboxFaces(currentSkybox);
                     m_SkyboxMap.reset();
@@ -378,15 +401,50 @@ namespace test_model
             }
             ImGui::EndCombo();
         }
+        
+        if (ImGui::BeginCombo("##combo3", currentPlane.c_str()))
+        {
+            for (int n = 0; n < planesVec.size(); n++)
+            {
+                bool is_selected = (currentPlane == planesVec[n]);
+                if (ImGui::Selectable(planesVec[n].c_str(), is_selected))
+                    currentPlane = planesVec[n];
+
+                if (is_selected){
+                    
+                    ImGui::SetItemDefaultFocus();
+                }
+
+                if (currentPlane != prevPlane)
+                {
+                    prevPlane = currentPlane;
+                    m_PlaneModel.reset();
+                    m_PlaneModel = std::make_unique<Model>("res/planes/" + currentPlane + "/" + currentPlane + ".obj", "res/planes/" + currentPlane + "/");
+                }
+                
+            }
+            ImGui::EndCombo();
+        }
+        
+
         ImGui::Checkbox("Reflections", &reflections);
         ImGui::Checkbox("Shadows", &shadows);
         ImGui::Checkbox("Dynamic Environment Mapping", &dynamicReflections);
     }
 }
 
+
+/**
+ * @brief Search the directory for desired models or cubemaps.
+ * 
+ * @param path 
+ * @param remove 
+ * @return std::vector<std::string> 
+ */
 std::vector<std::string> searchDirectory(std::string path, int remove = 0)
 {
     /*
+        Inspired by:
         https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
     */
     std::vector<string> vec;

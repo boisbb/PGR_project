@@ -6,6 +6,15 @@
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/imgui_impl_glfw_gl3.h"
 
+/**
+ * @brief Construct a new Camera:: Camera object.
+ * 
+ * @param width Width of window
+ * @param height Height of window
+ * @param position Position of the Camera in WS
+ * @param orientation Orientation of the camera
+ * @param up Up vector
+ */
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 orientation, glm::vec3 up)
     : c_Width(width), c_Height(height), c_Position(position), c_Orientation(orientation), c_Up(up)
 {
@@ -17,6 +26,13 @@ Camera::~Camera()
     
 }
 
+/**
+ * @brief Updates the matrix each drawing cycle.
+ * 
+ * @param FOVdeg Field of view
+ * @param nearPlane 
+ * @param farPlane 
+ */
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane) 
 {
     c_View = glm::mat4(1.0f);
@@ -29,6 +45,11 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
     c_Matrix = c_Projection * c_View;
 }
 
+/**
+ * @brief Processes the user input.
+ * 
+ * @param window 
+ */
 void Camera::Input(GLFWwindow* window) 
 {   
     ImGuiIO& io = ImGui::GetIO();
@@ -95,12 +116,14 @@ void Camera::Input(GLFWwindow* window)
     }
 }
 
+/**
+ * @brief Sets the matrix uniform. 
+ * 
+ * @param shader 
+ * @param uniform Uniform name.
+ */
 void Camera::Matrix(Shader& shader, const char* uniform) 
 {
     shader.SetUniformMat4f(uniform, c_Matrix);
 }
 
-glm::vec3 Camera::GetPosition() const
-{
-    return c_Position;
-}

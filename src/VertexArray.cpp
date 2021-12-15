@@ -7,6 +7,13 @@ VertexArray::VertexArray(){
 VertexArray::~VertexArray(){
 }
 
+
+/**
+ * @brief Add a Vertex Buffer to Vertex Array Object.
+ * 
+ * @param vb Vertex buffer to be added.
+ * @param layout Layout of the added vertex buffer.
+ */
 void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout){
   Bind();
   vb.Bind();
@@ -20,10 +27,19 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
   }
 }
 
+/**
+ * @brief Bind the VAO.
+ * 
+ */
 void VertexArray::Bind() const {
   glBindVertexArray(m_RendererID);
 }
 
+
+/**
+ * @brief Unbind the VAO.
+ * 
+ */
 void VertexArray::Unbind() const {
   glBindVertexArray(0);
 }

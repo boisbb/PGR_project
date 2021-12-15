@@ -11,6 +11,7 @@
 
 #include "Shader.h"
 
+
 class Camera {
 public:
     Camera(int width, int height, glm::vec3 position, glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
@@ -23,8 +24,8 @@ public:
     glm::mat4 GetProjection() const { return c_Projection; }
     glm::mat4 GetView() const { return c_View; }
     glm::mat4 GetMatrix() const { return c_Matrix; }
+    glm::vec3 GetPosition() const { return c_Position; };
 
-    glm::vec3 GetPosition() const;
     glm::vec3 c_Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 c_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 

@@ -1,5 +1,11 @@
 #include "VertexBufferLayout.h"
 
+/**
+ * @brief Push float into layout.
+ * 
+ * @tparam  
+ * @param count 
+ */
 template<>
 void VertexBufferLayout::Push<float>(unsigned int count)
 {
@@ -7,6 +13,13 @@ void VertexBufferLayout::Push<float>(unsigned int count)
   m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
 }
 
+
+/**
+ * @brief Push uint into layout.
+ * 
+ * @tparam  
+ * @param count 
+ */
 template<>
 void VertexBufferLayout::Push<unsigned int>(unsigned int count)
 {
@@ -14,6 +27,13 @@ void VertexBufferLayout::Push<unsigned int>(unsigned int count)
   m_Stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_INT);
 }
 
+
+/**
+ * @brief Push unsigned char into layout.
+ * 
+ * @tparam  
+ * @param count 
+ */
 template<>
 void VertexBufferLayout::Push<unsigned char>(unsigned int count)
 {

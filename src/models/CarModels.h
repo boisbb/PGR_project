@@ -66,6 +66,10 @@ namespace test_model {
         std::string currentModel = "porsche";
         std::string prevModel = "porsche";
 
+        std::vector<std::string> planesVec;
+        std::string currentPlane = "road";
+        std::string prevPlane = "road";
+
         bool reflections = true;
         bool shadows = true;
         bool dynamicReflections = true;

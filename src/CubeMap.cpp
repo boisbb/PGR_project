@@ -4,6 +4,12 @@
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 
+
+/**
+ * @brief Construct a new Cube Map:: Cube Map object.
+ * 
+ * @param faces Vector of paths to Skybox faces - X/Y/Z, pos/neg
+ */
 CubeMap::CubeMap(std::vector<std::string> faces){
     std::vector<glm::vec3> skyboxVertices = {
         // positions          
@@ -62,6 +68,12 @@ CubeMap::CubeMap(std::vector<std::string> faces){
 
 }
 
+/**
+ * @brief Draw the Skybox.
+ * 
+ * @param shader 
+ * @param camera 
+ */
 void CubeMap::Draw(Shader& shader, Camera& camera){
     glDepthFunc(GL_LEQUAL);
     shader.Bind();
@@ -69,12 +81,6 @@ void CubeMap::Draw(Shader& shader, Camera& camera){
     glm::mat4 objectModelInit = glm::mat4(1.0f);
     objectModelInit = glm::scale(objectModelInit, glm::vec3(500,500,500));
 
-    /*
-    glm::mat4 view = camera.GetView(); // remove translation from the view matrix
-    glm::mat4 projection = camera.GetProjection();
-    shader.SetUniformMat4f("u_View", view);
-    shader.SetUniformMat4f("u_Projection", projection);
-    */
     shader.SetUniformMat4f("u_Scale", objectModelInit);
     // skybox cube
     m_VAO->Bind();
@@ -90,6 +96,13 @@ CubeMap::~CubeMap(){
 
 }
 
+
+/**
+ * @brief Create the cubemap texture.
+ * 
+ * @param faces 
+ * @return unsigned int
+ */
 unsigned int CubeMap::loadCubemap(vector<std::string> faces){
     unsigned int textureID;
     glGenTextures(1, &textureID);

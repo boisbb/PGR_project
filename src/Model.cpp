@@ -5,6 +5,9 @@
 
 inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from)
 {
+    // Inspired by:
+    // https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
+    
     glm::mat4 to;
 
 
@@ -16,6 +19,7 @@ inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from)
     return to;
 }
 
+// Inspired by:
 // https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-14-17-c
 inline bool file_exists (const std::string& name) {
   struct stat buffer;   
@@ -29,10 +33,15 @@ Model::Model()
 	
 }
 
+/**
+ * @brief Construct a new Model:: Model object
+ * 
+ * @param model Path to the model (preferably .obj) file.
+ * @param resources Path to the folder with textures.
+ */
 Model::Model(std::string model, std::string resources)
     : model_path(model), resources_path(resources)
 {
-	// Make a JSON object
     bool res = loadModel();
 }
 
@@ -41,9 +50,16 @@ Model::~Model()
     
 }
 
+/**
+ * @brief Draw the model by meshes.
+ * 
+ * @param shader Shader to be used.
+ * @param camera 
+ * @param scale Scale vector to be applied.
+ * @param translate Translation vector to be applied.
+ */
 void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 translate)
 {
-	// Go over all meshes and draw each one
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{        
         // POSSIBLE SPEED DECREASE MAYBE REDO
@@ -77,6 +93,12 @@ void Model::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 tran
     glDisable(GL_CULL_FACE);
 }
 
+/**
+ * @brief Add texture to a specific mesh.
+ * 
+ * @param texture 
+ * @param position 
+ */
 void Model::AddMeshTexture(Texture& texture, int position) 
 {
     if (position < meshes.size())
@@ -91,11 +113,25 @@ void Model::AddMeshTexture(Texture& texture, int position)
     
 }
 
+
+/**
+ * @brief Add mesh to the model.
+ * 
+ * @param mesh Mesh to be added.
+ */
 void Model::AddMesh(Mesh& mesh) 
 {
 	meshes.push_back(mesh);
 }
 
+
+/**
+ * @brief Process the Mesh in Assimp tree structure.
+ * 
+ * @param mesh Assimp mesh.
+ * @param scene Assimp scene.
+ * @param accTransform Assimp node transformation matrix.
+ */
 void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTransform)
 {
 
@@ -105,7 +141,6 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
     aiVector3D UVW;
     aiVector3D n;
 
-    // ADD TEXTURE LOADING IF POSSIBLE
     for (unsigned int j = 0; j < mesh->mNumVertices; j++)
     {
 
@@ -117,11 +152,9 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
         vector.z = mesh->mVertices[j].z; 
         vertex.position = vector;
 
-        if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+        if(mesh->mTextureCoords[0])
             {
                 glm::vec2 vec;
-                // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
-                // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
                 vec.x = mesh->mTextureCoords[0][j].x; 
                 vec.y = mesh->mTextureCoords[0][j].y;
                 vertex.texUV = vec;
@@ -148,26 +181,14 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
             indices.push_back(face.mIndices[j]);
     } 
 
-    /*
-    // process indices
-    [...]
-    // process material
-    if(mesh->mMaterialIndex >= 0)
-    {
-        [...]
-    }
-    */
-
     meshes.push_back(Mesh(vertices, indices));
 
-    // Set the node transformation matrix
     meshes[meshes.size() - 1].SetModelMatrix(aiMatrix4x4ToGlm(&accTransform));
 
     if(mesh->mMaterialIndex >= 0)
     {
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         aiString texture_file;
-        // TRY TEXTURES
         if (material->GetTextureCount(aiTextureType_AMBIENT))
         {
             material->GetTexture(aiTextureType_AMBIENT, 0, &texture_file);
@@ -219,9 +240,7 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
             return;
         }
 
-        // Find the texture and create it
         if(auto texture = scene->GetEmbeddedTexture(texture_file.C_Str())) {
-            //returned pointer is not null, read texture from memory
             std::cout<<"Got a embedded texture!"<<std::endl;
         } 
         else {
@@ -246,23 +265,33 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 accTrans
     }
 }
 
+/**
+ * @brief Processes the actual node and recursively calls on another one.
+ * 
+ * @param node Assimp node to be processed.
+ * @param scene Assimp scene.
+ * @param accTransform Assimp transformation matrix of the node.
+ */
 void Model::processNode(aiNode *node, const aiScene *scene, aiMatrix4x4 accTransform)
 {
-    // process all the node's meshes (if any)
 
     for(unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]]; 
         processMesh(mesh, scene, accTransform);	
     }
-    // then do the same for each of its children
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
         processNode(node->mChildren[i], scene, accTransform * node->mChildren[i]->mTransformation);
     }
 }
 
-
+/**
+ * @brief Load the input model.
+ * 
+ * @return true 
+ * @return false 
+ */
 bool Model::loadModel()
 {
     Assimp::Importer import;
@@ -270,7 +299,7 @@ bool Model::loadModel()
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
-        cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
+        cout << "Assimp loading error:" << import.GetErrorString() << endl;
         return false;
     }
 

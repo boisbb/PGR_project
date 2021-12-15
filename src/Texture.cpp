@@ -2,6 +2,13 @@
 
 #include "vendor/stb_image/stb_image.h"
 
+
+/**
+ * @brief Construct a new Texture:: Texture object
+ * 
+ * @param path File path.
+ * @param slot Slot of the texture.
+ */
 Texture::Texture(const std::string& path, unsigned int slot) 
     : m_FilePath(path), unit(slot)
 {
@@ -33,21 +40,39 @@ Texture::Texture(const std::string& path, unsigned int slot)
 
 Texture::~Texture() 
 {
-    //glDeleteTextures(1, &m_RendererID));
+    
 }
 
+
+/**
+ * @brief Set the unit of a texture for shader.
+ * 
+ * @param shader 
+ * @param uniform 
+ * @param unit 
+ */
 void Texture::SetUnit(Shader& shader, std::string uniform, unsigned int unit) 
 {
     shader.Bind();
     shader.SetUniform1i(uniform, unit);
 }
 
+
+/**
+ * @brief Bind the texture.
+ * 
+ */
 void Texture::Bind()
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, m_RendererID);
 }
 
+
+/**
+ * @brief Unbind the texture.
+ * 
+ */
 void Texture::Unbind() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);

@@ -56,7 +56,6 @@ void Mesh::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 trans
     m_VAO->Bind();
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
-    glm::vec3 camPos = camera.GetPosition();
 
     Renderer renderer;
 
@@ -67,9 +66,7 @@ void Mesh::Draw(Shader& shader, Camera& camera, glm::vec3 scale, glm::vec3 trans
 
     if (HasColors && !HasTextures)
     {
-        shader.SetUniform3f("u_AmbientColor", ambient.r, ambient.g, ambient.b);
         shader.SetUniform3f("u_DiffuseColor", diffuse.r, diffuse.g, diffuse.b);
-        shader.SetUniform3f("u_SpecularColor", specular.r, specular.g, specular.b);
     }
 
     shader.SetUniform1f("u_Opacity", opacity);

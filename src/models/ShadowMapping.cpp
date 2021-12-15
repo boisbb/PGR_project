@@ -5,7 +5,6 @@
 #include "../vendor/glm/gtc/matrix_transform.hpp"
 #include "../vendor/imgui/imgui.h"
 
-void renderQuad();
 void renderCube();
 void renderScene(Shader &shader);
 
@@ -34,7 +33,7 @@ namespace test_model
         m_LightCubeShader = std::make_unique<Shader>("res/shaders/lightCube.shader");
         m_LightCube = std::make_unique<Model>("res/models/lightCube/lightCube.obj");
 
-        m_Shader = std::make_unique<Shader>("res/shaders/shadowmap_mine.shader");
+        m_Shader = std::make_unique<Shader>("res/shaders/shadowmap.shader");
         m_DepthShader = std::make_unique<Shader>("res/shaders/depth.shader");
         m_SkyboxShader = std::make_unique<Shader>("res/shaders/skybox.shader");
 
@@ -82,10 +81,6 @@ namespace test_model
         m_Shader->SetUniform1i("u_Texture", 1);
         m_Shader->SetUniform1i("shadowMap", 2);
 
-
-        m_DebugShader = std::make_unique<Shader>("res/shaders/debugdepthquad.shader");
-        m_DebugShader->Bind();
-        m_DebugShader->SetUniform1i("depthMap", 0);
 
 
         //--------------------------
@@ -174,13 +169,7 @@ namespace test_model
         m_Camera->Matrix(*m_LightCubeShader, "u_CameraMatrix");
         m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
         
-        //--- show the depth texture
-        m_DebugShader->Bind();
-        m_DepthShader->SetUniform1f("near_plane", near_plane);
-        m_DepthShader->SetUniform1f("far_plane", far_plane);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        //renderQuad();
+        
     }
     
     void ShadowMapping::OnImGuiRender() 
@@ -205,36 +194,4 @@ namespace test_model
         ImGui::Unindent();
         ImGui::ColorEdit4("Clear Color", m_ClearColor);
     }
-}
-
-
-// renderQuad() renders a 1x1 XY quad in NDC
-// -----------------------------------------
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-    if (quadVAO == 0)
-    {
-        float quadVertices[] = {
-            // positions        // texture Coords
-            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        };
-        // setup plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
-    glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
 }

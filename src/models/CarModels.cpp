@@ -51,7 +51,6 @@ namespace test_model
         m_LightCube = std::make_unique<Model>("res/models/lightCube/lightCube.obj");
 
         m_Shader = std::make_unique<Shader>("res/shaders/shadowmap.shader");
-        m_DepthShader = std::make_unique<Shader>("res/shaders/depth.shader");
         m_SkyboxShader = std::make_unique<Shader>("res/shaders/skybox.shader");
 
         vector<std::string> faces1
@@ -65,11 +64,41 @@ namespace test_model
         };
         m_SkyboxMap = std::make_unique<CubeMap>(faces1);
 
+        // Dynamic cubemap stuff
+        glGenFramebuffers(1, &fboID);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboID);	
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        for (int i = 0; i < 6; i++)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, 2048, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glGenRenderbuffers(1, &renderID);
+        glBindRenderbuffer(GL_RENDERBUFFER, renderID);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 2048, 2048);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fboID);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X, textureID, 0);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		    cerr << "FrameBuffer isn't ok" << endl;
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //--------------------------
+
+        // Depthmapping stuff
+        //--------------------------
+        m_DepthShader = std::make_unique<Shader>("res/shaders/depth.shader");
+
 
         const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
         glGenFramebuffers(1, &depthMapFBO);
-        // create depth texture
+
         glGenTextures(1, &depthMap);
         glBindTexture(GL_TEXTURE_2D, depthMap);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -79,7 +108,7 @@ namespace test_model
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-        // attach depth texture as FBO's depth buffer
+
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
         glDrawBuffer(GL_NONE);
@@ -90,14 +119,8 @@ namespace test_model
         m_Shader->SetUniform1i("skybox", 0);
         m_Shader->SetUniform1i("u_Texture", 1);
         m_Shader->SetUniform1i("shadowMap", 2);
-
-
-        m_DebugShader = std::make_unique<Shader>("res/shaders/debugdepthquad.shader");
-        m_DebugShader->Bind();
-        m_DebugShader->SetUniform1i("depthMap", 0);
-
-
         //--------------------------
+
     }
     
     void CarModels::ModelReinit(int width, int height) 
@@ -139,21 +162,99 @@ namespace test_model
         
         // Creating depth texture
         //-------------------
-        m_DepthShader->Bind();
-        m_DepthShader->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+        if (shadows)
+        {
+        
+            m_DepthShader->Bind();
+            m_DepthShader->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
-        glViewport(0, 0, 1024, 1024);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        m_PlaneModel->Draw(*m_DepthShader, *m_Camera);
-        m_Model->Draw(*m_DepthShader, *m_Camera);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glViewport(0, 0, 1024, 1024);
+            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            m_PlaneModel->Draw(*m_DepthShader, *m_Camera);
+            m_Model->Draw(*m_DepthShader, *m_Camera);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glViewport(0, 0, WIDTH, HEIGHT);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glViewport(0, 0, WIDTH, HEIGHT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+        //-------------------
+
+        // Dynamic Cubemap stuff
+        if (dynamicReflections)
+        {
+            
+        
+            glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+            glViewport(0, 0, 2048, 2048);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            for (int side = 0; side < 6; side++){
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + side, textureID, 0);
+
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glm::mat4 v = glm::mat4(1.0f);
+                glm::mat4 p = glm::mat4(1.0f);
+                p = glm::perspective(glm::radians((float)90), (float)1, (float)0.1, (float)1000);
+                
+                switch (GL_TEXTURE_CUBE_MAP_POSITIVE_X + side) {
+                    case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+                        v = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+                        break;
+                    case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+                        v = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+                        break;
+                    case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+                        v = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+                        break;
+                    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+                        v = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+                        break;
+                    case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+                        v = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+                        break;
+                    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+                        v = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+                        break;
+                    default:
+                        break;
+                }
+
+                // Draw the skybox
+                m_SkyboxShader->Bind();
+                m_SkyboxShader->SetUniformMat4f("u_View", v);
+                m_SkyboxShader->SetUniformMat4f("u_Projection", p);
+                m_SkyboxShader->SetUniformMat4f("u_CameraMatrix", p * v);
+                m_SkyboxMap->Draw(*m_SkyboxShader, *m_Camera);
+                
+                // Draw the plane but not the main model
+                m_Shader->Bind();
+                m_Shader->SetUniform1f("u_LightStrength", lightStrength);
+                m_Shader->SetUniform3f("u_LightColor", lightColor.r, lightColor.g, lightColor.b);
+                m_Shader->SetUniform3f("u_ViewPos", viewPos.r, viewPos.g, viewPos.b);
+                m_Shader->SetUniform3f("u_LightPos", lightPos.x, lightPos.y, lightPos.z);
+                m_Shader->SetUniformMat4f("u_CameraMatrix", p * v);
+                m_Shader->SetUniform1i("u_ReflectionsBool", int(reflections));
+                m_Shader->SetUniform1i("u_ShadowsBool", int(shadows));
+
+                m_Shader->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, depthMap);
+                m_PlaneModel->Draw(*m_Shader, *m_Camera);
+
+                m_Shader->Unbind();
+
+                // Render light cube
+                m_LightCubeShader->Bind();
+                m_LightCubeShader->SetUniformMat4f("u_CameraMatrix", p * v);
+                m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
+
+            }
+        }
+        //-------------------
         
         // Render the scene
         //-------------------
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, WIDTH, HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -169,7 +270,6 @@ namespace test_model
         m_Shader->SetUniform3f("u_LightColor", lightColor.r, lightColor.g, lightColor.b);
         m_Shader->SetUniform3f("u_ViewPos", viewPos.r, viewPos.g, viewPos.b);
         m_Shader->SetUniform3f("u_LightPos", lightPos.x, lightPos.y, lightPos.z);
-        m_Shader->SetUniform1i("u_HasTexture", 1);
         m_Shader->SetUniform1i("u_ReflectionsBool", int(reflections));
         m_Shader->SetUniform1i("u_ShadowsBool", int(shadows));
         m_Camera->Matrix(*m_Shader, "u_CameraMatrix");
@@ -177,23 +277,29 @@ namespace test_model
         m_Shader->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        m_Model->Draw(*m_Shader, *m_Camera);
         m_Shader->SetUniform1i("u_ReflectionsBool", 0);
         m_PlaneModel->Draw(*m_Shader, *m_Camera);
+        m_Shader->SetUniform1i("u_ReflectionsBool", reflections);
+        
+        if (dynamicReflections)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        }
+        else
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, m_SkyboxMap->GetTextureID());
+        }
+        
+    
+        m_Model->Draw(*m_Shader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, -0.5, 0.0));
         //------
 
         // Render light cube
         m_LightCubeShader->Bind();
         m_Camera->Matrix(*m_LightCubeShader, "u_CameraMatrix");
         m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
-        
-        //--- show the depth texture
-        m_DebugShader->Bind();
-        m_DepthShader->SetUniform1f("near_plane", near_plane);
-        m_DepthShader->SetUniform1f("far_plane", far_plane);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        //renderQuad();
 
     }
     
@@ -206,19 +312,20 @@ namespace test_model
             ImGui::ColorEdit3("Color", &lightColor.r);
             ImGui::Unindent();
         }
+        
 
         
-        if (ImGui::BeginCombo("##combo", currentSkybox.c_str())) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("##combo", currentSkybox.c_str()))
         {
             for (int n = 0; n < skyboxesVec.size(); n++)
             {
-                bool is_selected = (currentSkybox == skyboxesVec[n]); // You can store your selection however you want, outside or inside your objects
+                bool is_selected = (currentSkybox == skyboxesVec[n]);
                 if (ImGui::Selectable(skyboxesVec[n].c_str(), is_selected))
                     currentSkybox = skyboxesVec[n];
 
                 if (is_selected){
                     
-                    ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                    ImGui::SetItemDefaultFocus();
                 }
 
                 if (currentSkybox != prevSkybox)
@@ -235,17 +342,17 @@ namespace test_model
             ImGui::EndCombo();
         }
 
-        if (ImGui::BeginCombo("##combo2", currentModel.c_str())) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("##combo2", currentModel.c_str()))
         {
             for (int n = 0; n < modelsVec.size(); n++)
             {
-                bool is_selected = (currentModel == modelsVec[n]); // You can store your selection however you want, outside or inside your objects
+                bool is_selected = (currentModel == modelsVec[n]);
                 if (ImGui::Selectable(modelsVec[n].c_str(), is_selected))
                     currentModel = modelsVec[n];
 
                 if (is_selected){
                     
-                    ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                    ImGui::SetItemDefaultFocus();
                 }
 
                 if (currentModel != prevModel)
@@ -260,6 +367,7 @@ namespace test_model
         }
         ImGui::Checkbox("Reflections", &reflections);
         ImGui::Checkbox("Shadows", &shadows);
+        ImGui::Checkbox("Dynamic Environment Mapping", &dynamicReflections);
     }
 }
 
@@ -286,10 +394,3 @@ std::vector<std::string> searchDirectory(std::string path, int remove = 0)
 
     return vec;
 }
-
-
-// kresleni transparentnich objektu 2x
-// 1. nakreslim odvracene - glEnable(GL_CULL_FACE)
-// 2. nakreslim privracene - zahazovani trojuhelniku, ktere jsou odvracene
-// fragment shader - discard - dithering
-// a-buffer / order independent transparency

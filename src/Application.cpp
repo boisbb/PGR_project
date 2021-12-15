@@ -30,9 +30,11 @@ http://docs.gl/
 #include "internal/model_loader.h"
 
 #include "models/TestModel.h"
+#include "models/TexturedCube.h"
 #include "models/Suzanne.h"
 #include "models/ShadowMapping.h"
-#include "models/TexturedCube.h"
+#include "models/DynamicCubeMap.h"
+#include "models/DCMSM.h"
 #include "models/CarModels.h"
 
 int WIDTH = 1200;
@@ -86,9 +88,11 @@ int main(int argc, char* argv[])
     test_model::TestModelMenu* testModelMenu = new test_model::TestModelMenu(currentTestModel);
     currentTestModel = testModelMenu;
 
+    testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window, WIDTH, HEIGHT);
     testModelMenu->RegisterTestModel<test_model::Suzanne>("Suzanne", window, WIDTH, HEIGHT);
     testModelMenu->RegisterTestModel<test_model::ShadowMapping>("ShadowMapping", window, WIDTH, HEIGHT);
-    testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window, WIDTH, HEIGHT);
+    testModelMenu->RegisterTestModel<test_model::DynamicCubeMap>("DynamicCubeMap", window, WIDTH, HEIGHT);
+    testModelMenu->RegisterTestModel<test_model::DCMSM>("DCMSM", window, WIDTH, HEIGHT);
     testModelMenu->RegisterTestModel<test_model::CarModels>("CarModels", window, WIDTH, HEIGHT);
     if (argc == 2)
     {

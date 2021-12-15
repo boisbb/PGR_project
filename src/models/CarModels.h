@@ -33,7 +33,6 @@ namespace test_model {
         std::unique_ptr<Shader> m_Shader;
         std::unique_ptr<Shader> m_LightCubeShader;
         std::unique_ptr<Shader> m_DepthShader;
-        std::unique_ptr<Shader> m_DebugShader;
         std::unique_ptr<Shader> m_SkyboxShader;
 
         std::unique_ptr<Camera> m_Camera;
@@ -43,8 +42,16 @@ namespace test_model {
         std::unique_ptr<Model> m_PlaneModel;
         std::unique_ptr<CubeMap> m_SkyboxMap;
 
+        //-- Depthmapping stuff
         unsigned int depthMapFBO;
         unsigned int depthMap;
+        //--
+
+        //-- DCM stuff
+        unsigned int fboID;
+        unsigned int renderID;
+        unsigned int textureID;
+        //--
 
         glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
@@ -62,6 +69,7 @@ namespace test_model {
 
         bool reflections = true;
         bool shadows = true;
+        bool dynamicReflections = true;
 
         int WIDTH;
         int HEIGHT;

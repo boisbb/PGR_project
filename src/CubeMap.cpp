@@ -4,7 +4,6 @@
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 
-
 CubeMap::CubeMap(std::vector<std::string> faces){
     std::vector<glm::vec3> skyboxVertices = {
         // positions          
@@ -68,12 +67,14 @@ void CubeMap::Draw(Shader& shader, Camera& camera){
     shader.Bind();
 
     glm::mat4 objectModelInit = glm::mat4(1.0f);
-    objectModelInit = glm::scale(objectModelInit, glm::vec3(200,200,200));
+    objectModelInit = glm::scale(objectModelInit, glm::vec3(500,500,500));
 
+    /*
     glm::mat4 view = camera.GetView(); // remove translation from the view matrix
     glm::mat4 projection = camera.GetProjection();
     shader.SetUniformMat4f("u_View", view);
     shader.SetUniformMat4f("u_Projection", projection);
+    */
     shader.SetUniformMat4f("u_Scale", objectModelInit);
     // skybox cube
     m_VAO->Bind();

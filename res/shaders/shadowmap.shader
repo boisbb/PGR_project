@@ -1,4 +1,10 @@
 #shader vertex
+
+// This whole shader code was heavily influenced by code derived from this link:
+// https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+// Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
+
+
 #version 330 core
 layout (location = 0) in vec3 a_Pos;
 layout(location = 1) in vec2 a_UV;
@@ -40,27 +46,25 @@ in VS_OUT {
 uniform int u_ReflectionsBool = 1;
 uniform int u_ShadowsBool = 1;
 
+uniform vec3 u_DiffuseColor;
 uniform int u_HasTexture;
 uniform float u_Opacity;
+
 uniform vec3 u_LightPos;
 uniform vec3 u_ViewPos;
 uniform float u_LightStrength;
 uniform vec3 u_LightColor;
+
+uniform samplerCube skybox;
 uniform sampler2D shadowMap;
 uniform sampler2D u_Texture;
-uniform samplerCube skybox;
 
-uniform vec3 u_AmbientColor;
-uniform vec3 u_DiffuseColor;
 
 
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
 
-    
-
-    // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;

@@ -17,6 +17,8 @@ public:
     ~CubeMap();
     void Draw(Shader& shader, Camera& camera);
 
+    inline unsigned int GetTextureID() const { return skyboxTexture; }
+
 private:
     unsigned int loadCubemap(vector<std::string> faces);
     

@@ -2,4 +2,6 @@
 *.blend
 *.fbx
 res/models*
+res/planes*
+res/objects*
 doc*

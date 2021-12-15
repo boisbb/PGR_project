@@ -7,7 +7,6 @@
 #include "../Camera.h"
 #include "../Model.h"
 #include "../CubeMap.h"
-#include "../Debug.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

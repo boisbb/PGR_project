@@ -1,6 +1,6 @@
 #shader vertex
 #version 330 core
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec3 a_Pos;
 
 uniform mat4 u_CameraMatrix;
 uniform mat4 u_ModelMatrix;
@@ -8,7 +8,7 @@ uniform mat4 u_Transform;
 
 void main()
 {
-	gl_Position = u_CameraMatrix * vec4(u_Transform * u_ModelMatrix * vec4(aPos, 1.0f));
+	gl_Position = u_CameraMatrix * vec4(u_Transform * u_ModelMatrix * vec4(a_Pos, 1.0f));
 }
 
 #shader fragment

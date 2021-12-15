@@ -3,6 +3,7 @@
 // This whole shader code was heavily influenced by code derived from this link:
 // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 // Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
+// licensed under CC BY 4.0
 
 
 #version 330 core
@@ -64,22 +65,33 @@ uniform sampler2D u_Texture;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
-
+    // Transform coords to NDC
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
+    
+    // Transform NDC to range [0,1]
     projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
+    
+    // Retrieve the closest depth from the lights POV
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+
+    // Get depth of the current fragment
     float currentDepth = projCoords.z;
-    // calculate bias (based on depth map resolution and slope)
+
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightDir = normalize(u_LightPos - fs_in.FragPos);
+
+    // Calculate bias based on the the surface angle towards the light
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    // check whether current frag pos is in shadow
-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-    // PCF
+    
+    // Percentage-closer filtering:
+    // - sample more than once with slightly different coords
+    // - each sample is checked whether it is in shadow or not
+    // - all the sub-results are averaged and combined
+    // --> VOILA - softer shadow
+    // --> here -> sample the surrounding texels of depth map and average
     float shadow = 0.0;
+
+    // textureSize -> return vec2(width, height) of texture
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
     {
@@ -113,22 +125,35 @@ void main()
     else{
         color = u_DiffuseColor;
     }
+
     vec3 normal = normalize(fs_in.Normal);
-    // ambient
+
+    // Compute ambient lighting
     vec3 ambient = u_LightStrength * u_LightColor;
-    // diffuse
+
+    // Compute light direction
     vec3 lightDir = normalize(u_LightPos - fs_in.FragPos);
+
+    // Compute diffuse lighting
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * u_LightColor;
-    // specular
+
+    // Compute view direction
     vec3 viewDir = normalize(u_ViewPos - fs_in.FragPos);
+
+    // Compute reflectionDirection
     vec3 reflectDir = reflect(-lightDir, normal);
+
+    // Compute specular lighting
     float spec = 0.0;
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * u_LightColor;    
-    // calculate shadow
-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);         
+
+    // Calculate the shadow
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+
+    // Compute the final lighting based on uniforms
     if(u_ReflectionsBool == 1 && u_ShadowsBool == 1){
         lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color * texture(skybox, R).rgb;
     }

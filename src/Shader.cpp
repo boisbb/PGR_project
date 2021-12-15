@@ -18,44 +18,44 @@ Shader::Shader(const string& filepath)
 }
 
 Shader::~Shader(){
-	GLCall(glDeleteProgram(m_RendererID));
+	glDeleteProgram(m_RendererID);
 }
 
 void Shader::Bind() const{
-	GLCall(glUseProgram(m_RendererID));
+	glUseProgram(m_RendererID);
 }
 
 void Shader::Unbind() const{
-	GLCall(glUseProgram(0));
+	glUseProgram(0);
 }
 
 void Shader::SetUniform1f(const std::string& name, float value) 
 {
-  GLCall(glUniform1f(GetUniformLocation(name), value));
+  glUniform1f(GetUniformLocation(name), value);
 }
 
 void Shader::SetUniform1i(const std::string& name, int value) 
 {
-  GLCall(glUniform1i(GetUniformLocation(name), value));
+  glUniform1i(GetUniformLocation(name), value);
 }
 
 void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2) 
 {
-  GLCall(glUniform3f(GetUniformLocation(name), v0, v1, v2));
+  glUniform3f(GetUniformLocation(name), v0, v1, v2);
 }
 
 void Shader::SetUniform4f(const string& name, float v0, float v1, float v2, float v3){
-	GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
+	glUniform4f(GetUniformLocation(name), v0, v1, v2, v3);
 }
 
 void Shader::SetUniformMat1i(const std::string& name, const int* value) 
 {
-  GLCall(glUniform1iv(GetUniformLocation(name), 2, value));
+  glUniform1iv(GetUniformLocation(name), 2, value);
 }
 
 void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) 
 {
-  GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
+  glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
 }
 
 int Shader::GetUniformLocation(const string& name){
@@ -63,7 +63,7 @@ int Shader::GetUniformLocation(const string& name){
 		return m_UniformLocationCache[name];
 	}
 
-	GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
+	int location = glGetUniformLocation(m_RendererID, name.c_str());
 	if (location == -1) {
 		cout << "Warning: uniform " << name << " - doesn't exist!" << endl;
 	}
@@ -74,37 +74,37 @@ int Shader::GetUniformLocation(const string& name){
 
 
 unsigned int Shader::CreateShader(const string& vertexShader, const string& fragmentShader){
-  GLCall(unsigned int program = glCreateProgram());
+  unsigned int program = glCreateProgram();
   unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
   unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-  GLCall(glAttachShader(program, vs));
-  GLCall(glAttachShader(program, fs));
-  GLCall(glLinkProgram(program));
-  GLCall(glValidateProgram(program));
+  glAttachShader(program, vs);
+  glAttachShader(program, fs);
+  glLinkProgram(program);
+  glValidateProgram(program);
 
-  GLCall(glDeleteShader(vs));
-  GLCall(glDeleteShader(fs));
+  glDeleteShader(vs);
+  glDeleteShader(fs);
 
   return program;
 }
 
 unsigned int Shader::CompileShader(unsigned int type, const string& source){
-  GLCall(unsigned int id = glCreateShader(type));
+  unsigned int id = glCreateShader(type);
   const char* src = source.c_str();
-  GLCall(glShaderSource(id, 1, &src, NULL));
-  GLCall(glCompileShader(id));
+  glShaderSource(id, 1, &src, NULL);
+  glCompileShader(id);
 
   int res;
-  GLCall(glGetShaderiv(id, GL_COMPILE_STATUS, &res));
+  glGetShaderiv(id, GL_COMPILE_STATUS, &res);
   if (res == GL_FALSE) {
     int length;
-    GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
+    glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
     char* message = (char*)alloca(length * sizeof(char));
-    GLCall(glGetShaderInfoLog(id, length, &length, message));
+    glGetShaderInfoLog(id, length, &length, message);
     cout << "Failed to compile shader!" << endl;
     cout << message << endl;
-    GLCall(glDeleteShader(id));
+    glDeleteShader(id);
     return 0;
   }
 

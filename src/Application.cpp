@@ -10,7 +10,6 @@ http://docs.gl/
 #include <string>
 #include <sstream>
 
-#include "Debug.h"
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -27,14 +26,7 @@ http://docs.gl/
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/imgui_impl_glfw_gl3.h"
 
-#include "internal/model_loader.h"
-
 #include "models/TestModel.h"
-#include "models/TexturedCube.h"
-#include "models/Suzanne.h"
-#include "models/ShadowMapping.h"
-#include "models/DynamicCubeMap.h"
-#include "models/DCMSM.h"
 #include "models/CarModels.h"
 
 int WIDTH = 1200;
@@ -73,10 +65,10 @@ int main(int argc, char* argv[])
     }
     cout << glGetString(GL_VERSION) << endl;
 
-    GLCall(glEnable(GL_BLEND));
-    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-    GLCall(glEnable(GL_DEPTH_TEST));
-    GLCall(glViewport(0,0, WIDTH, HEIGHT));
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
+    glViewport(0,0, WIDTH, HEIGHT);
 
     Renderer renderer;
 
@@ -88,11 +80,6 @@ int main(int argc, char* argv[])
     test_model::TestModelMenu* testModelMenu = new test_model::TestModelMenu(currentTestModel);
     currentTestModel = testModelMenu;
 
-    testModelMenu->RegisterTestModel<test_model::TexturedCube>("TexturedCube", window, WIDTH, HEIGHT);
-    testModelMenu->RegisterTestModel<test_model::Suzanne>("Suzanne", window, WIDTH, HEIGHT);
-    testModelMenu->RegisterTestModel<test_model::ShadowMapping>("ShadowMapping", window, WIDTH, HEIGHT);
-    testModelMenu->RegisterTestModel<test_model::DynamicCubeMap>("DynamicCubeMap", window, WIDTH, HEIGHT);
-    testModelMenu->RegisterTestModel<test_model::DCMSM>("DCMSM", window, WIDTH, HEIGHT);
     testModelMenu->RegisterTestModel<test_model::CarModels>("CarModels", window, WIDTH, HEIGHT);
     if (argc == 2)
     {
@@ -102,7 +89,7 @@ int main(int argc, char* argv[])
 
     while (!glfwWindowShouldClose(window))
     {
-        GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         renderer.Clear();
 
         int w, h;
@@ -111,7 +98,7 @@ int main(int argc, char* argv[])
         {
             WIDTH = w;
             HEIGHT = h;
-            GLCall(glViewport(0,0, w, h));
+            glViewport(0,0, w, h);
             currentTestModel->ModelReinit(w, h);
         }
         

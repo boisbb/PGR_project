@@ -2,6 +2,8 @@
 
 #include <array>
 #include <vector>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include "vendor/glm/glm.hpp"
 
@@ -17,10 +19,8 @@ class VertexBuffer{
 private:
   unsigned int m_RendererID;
 public:
-  VertexBuffer(const void* data, unsigned int count);
   VertexBuffer(std::vector<Vertex>& vertices);
   VertexBuffer(std::vector<glm::vec3>& vertices);
-  VertexBuffer(std::vector<glm::vec2>& vertices);
   ~VertexBuffer();
 
   void Bind() const;

@@ -1,5 +1,4 @@
 #include "CarModels.h"
-#include "../Debug.h"
 
 #include "../vendor/glm/glm.hpp"
 #include "../vendor/glm/gtc/matrix_transform.hpp"
@@ -8,10 +7,26 @@
 #include <dirent.h>
 
 
+/*
+    Some of the code was for shadow mapping was influenced by code derived from this tutorial:
+    https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+    Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
+    licensed under CC BY 4.0
+
+    Code for dynamic environment mapping was influenced by the repository in the following link:
+    https://github.com/khongton/Dynamic-Cubemaps
+
+*/
+
+
 std::vector<std::string> searchDirectory(std::string path, int remove);
 
 namespace test_model
 {
+    /**
+     * @brief Construct a new Car Models:: Car Models object
+     * 
+     */
     CarModels::CarModels() 
         : m_ClearColor {0.2f, 0.3f, 0.8f, 1.0f}
     {
@@ -95,7 +110,6 @@ namespace test_model
         //--------------------------
         m_DepthShader = std::make_unique<Shader>("res/shaders/depth.shader");
 
-
         const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
         glGenFramebuffers(1, &depthMapFBO);
 
@@ -114,12 +128,12 @@ namespace test_model
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+        //--------------------------
+        
         m_Shader->Bind();
         m_Shader->SetUniform1i("skybox", 0);
         m_Shader->SetUniform1i("u_Texture", 1);
         m_Shader->SetUniform1i("shadowMap", 2);
-        //--------------------------
 
     }
     
@@ -142,8 +156,8 @@ namespace test_model
     
     void CarModels::OnRender() 
     {
-        GLCall(glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f));
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_Camera->Input(m_Window);
         m_Camera->updateMatrix(45.0f, 0.1f, 100.0f);
@@ -164,7 +178,6 @@ namespace test_model
         //-------------------
         if (shadows)
         {
-        
             m_DepthShader->Bind();
             m_DepthShader->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -373,6 +386,9 @@ namespace test_model
 
 std::vector<std::string> searchDirectory(std::string path, int remove = 0)
 {
+    /*
+        https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
+    */
     std::vector<string> vec;
     DIR *dir;
     struct dirent *ent;

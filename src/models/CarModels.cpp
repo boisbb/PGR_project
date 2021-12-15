@@ -48,6 +48,7 @@ namespace test_model
         modelsVec = searchDirectory("res/models", 0);
         skyboxesVec = searchDirectory("res/textures/skyboxes", 9);
         planesVec = searchDirectory("res/planes", 0);
+        objectsVec = searchDirectory("res/objects", 0);
 
 
         sort( skyboxesVec.begin(), skyboxesVec.end() );
@@ -57,7 +58,8 @@ namespace test_model
         scale = glm::vec3(1.0,1.0,1.0);
 
         m_Model = std::make_unique<Model>("res/models/porsche/porsche.obj", "res/models/porsche/");
-        m_PlaneModel = std::make_unique<Model>("res/planes/road/road.obj", "res/planes/road/");
+        m_PlaneModel = std::make_unique<Model>("res/planes/parking_lot/parking_lot.obj", "res/planes/parking_lot/");
+        m_ObjectModel = std::make_unique<Model>("res/objects/lamps/lamps.obj", "res/objects/lamps/");
 
         glEnable(GL_DEPTH_TEST);
         m_Camera = std::make_unique<Camera>(WIDTH, HEIGHT, 
@@ -204,6 +206,12 @@ namespace test_model
             glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
             glClear(GL_DEPTH_BUFFER_BIT);
             m_PlaneModel->Draw(*m_DepthShader, *m_Camera);
+
+            if (renderObjects)
+            {
+                m_ObjectModel->Draw(*m_DepthShader, *m_Camera);
+            }
+            
             m_Model->Draw(*m_DepthShader, *m_Camera);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -271,6 +279,11 @@ namespace test_model
                 m_Shader->SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
                 glActiveTexture(GL_TEXTURE2);
                 glBindTexture(GL_TEXTURE_2D, depthMap);
+
+                if (renderObjects)
+                {
+                    m_ObjectModel->Draw(*m_Shader, *m_Camera);
+                }
                 m_PlaneModel->Draw(*m_Shader, *m_Camera);
 
                 m_Shader->Unbind();
@@ -311,6 +324,11 @@ namespace test_model
         glBindTexture(GL_TEXTURE_2D, depthMap);
         m_Shader->SetUniform1i("u_ReflectionsBool", 0);
         m_PlaneModel->Draw(*m_Shader, *m_Camera);
+        if (renderObjects)
+        {
+            m_ObjectModel->Draw(*m_Shader, *m_Camera);
+        }
+        
         m_Shader->SetUniform1i("u_ReflectionsBool", reflections);
         
         if (dynamicReflections)
@@ -426,6 +444,31 @@ namespace test_model
             ImGui::EndCombo();
         }
         
+        ImGui::Checkbox("Render Objects?", &renderObjects);
+
+        if (ImGui::BeginCombo("##combo4", currentObject.c_str()))
+        {
+            for (int n = 0; n < objectsVec.size(); n++)
+            {
+                bool is_selected = (currentObject == objectsVec[n]);
+                if (ImGui::Selectable(objectsVec[n].c_str(), is_selected))
+                    currentObject = objectsVec[n];
+
+                if (is_selected){
+                    
+                    ImGui::SetItemDefaultFocus();
+                }
+
+                if (currentObject != prevObject)
+                {
+                    prevObject = currentObject;
+                    m_ObjectModel.reset();
+                    m_ObjectModel = std::make_unique<Model>("res/objects/" + currentObject + "/" + currentObject + ".obj", "res/objects/" + currentObject + "/");
+                }
+                
+            }
+            ImGui::EndCombo();
+        }
 
         ImGui::Checkbox("Reflections", &reflections);
         ImGui::Checkbox("Shadows", &shadows);

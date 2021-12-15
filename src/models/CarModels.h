@@ -37,6 +37,7 @@ namespace test_model {
         std::unique_ptr<Camera> m_Camera;
         std::unique_ptr<Texture> m_Texture;
         std::unique_ptr<Model> m_Model;
+        std::unique_ptr<Model> m_ObjectModel;
         std::unique_ptr<Model> m_LightCube;
         std::unique_ptr<Model> m_PlaneModel;
         std::unique_ptr<CubeMap> m_SkyboxMap;
@@ -67,12 +68,17 @@ namespace test_model {
         std::string prevModel = "porsche";
 
         std::vector<std::string> planesVec;
-        std::string currentPlane = "road";
-        std::string prevPlane = "road";
+        std::string currentPlane = "parking_lot";
+        std::string prevPlane = "parking_lot";
+
+        std::vector<std::string> objectsVec;
+        std::string currentObject = "lamps";
+        std::string prevObject = "lamps";
 
         bool reflections = true;
         bool shadows = true;
         bool dynamicReflections = true;
+        bool renderObjects = true;
 
         int WIDTH;
         int HEIGHT;

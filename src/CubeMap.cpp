@@ -4,6 +4,12 @@
 #include "vendor/glm/glm.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 
+/*
+    Some of the code was for Cube map was influenced by code derived from this tutorial:
+    https://learnopengl.com/Advanced-OpenGL/Cubemaps
+    Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
+    licensed under CC BY 4.0
+*/
 
 /**
  * @brief Construct a new Cube Map:: Cube Map object.

@@ -5,10 +5,11 @@
 #include "../vendor/imgui/imgui.h"
 
 #include <dirent.h>
+#include <algorithm>
 
 
 /*
-    Some of the code was for shadow mapping was influenced by code derived from this tutorial:
+    Some of the code for shadow mapping was influenced by code derived from this tutorial:
     https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
     Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
     licensed under CC BY 4.0
@@ -50,6 +51,8 @@ namespace test_model
         planesVec = searchDirectory("res/planes", 0);
         objectsVec = searchDirectory("res/objects", 0);
 
+        modelsVec.erase(std::remove(modelsVec.begin(), modelsVec.end(), "lightCube"), modelsVec.end());
+
 
         sort( skyboxesVec.begin(), skyboxesVec.end() );
         skyboxesVec.erase( unique( skyboxesVec.begin(), skyboxesVec.end() ), skyboxesVec.end() );
@@ -87,6 +90,7 @@ namespace test_model
         m_SkyboxMap = std::make_unique<CubeMap>(faces1);
 
         // Dynamic cubemap stuff
+        //--------------------------
         glGenFramebuffers(1, &fboID);
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);	
         glGenTextures(1, &textureID);
@@ -289,9 +293,12 @@ namespace test_model
                 m_Shader->Unbind();
 
                 // Render light cube
-                m_LightCubeShader->Bind();
-                m_LightCubeShader->SetUniformMat4f("u_CameraMatrix", p * v);
-                m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
+                if (displayCube)
+                {
+                    m_LightCubeShader->Bind();
+                    m_LightCubeShader->SetUniformMat4f("u_CameraMatrix", p * v);
+                    m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
+                }
 
             }
         }
@@ -347,9 +354,12 @@ namespace test_model
         //------
 
         // Render light cube
-        m_LightCubeShader->Bind();
-        m_Camera->Matrix(*m_LightCubeShader, "u_CameraMatrix");
-        m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
+        if (displayCube)
+        {
+            m_LightCubeShader->Bind();
+            m_Camera->Matrix(*m_LightCubeShader, "u_CameraMatrix");
+            m_LightCube->Draw(*m_LightCubeShader, *m_Camera, glm::vec3(1.0, 1.0, 1.0), lightPos);
+        }
 
     }
     
@@ -362,6 +372,7 @@ namespace test_model
     {
         if (ImGui::CollapsingHeader("Light")){
             ImGui::Indent();
+            ImGui::Checkbox("Display Cube?", &displayCube);
 		    ImGui::SliderFloat("Intensity", &lightStrength, 0, 20);
             ImGui::SliderFloat3("Light Position", &lightPos.x, -30, 30);
             ImGui::ColorEdit3("Color", &lightColor.r);

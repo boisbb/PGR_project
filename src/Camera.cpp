@@ -6,6 +6,13 @@
 #include "vendor/imgui/imgui.h"
 #include "vendor/imgui/imgui_impl_glfw_gl3.h"
 
+/*
+    Some of the code here was inspired by tutorial by:
+    Victor Gordan
+    https://www.youtube.com/playlist?list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-
+    https://github.com/VictorGordan/opengl-tutorials/tree/main/YoutubeOpenGL%208%20-%20Camera
+*/
+
 /**
  * @brief Construct a new Camera:: Camera object.
  * 

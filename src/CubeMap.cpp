@@ -7,6 +7,7 @@
 /*
     Some of the code was for Cube map was influenced by code derived from this tutorial:
     https://learnopengl.com/Advanced-OpenGL/Cubemaps
+    https://github.com/JoeyDeVries/LearnOpenGL/tree/master/src/4.advanced_opengl/6.2.cubemaps_environment_mapping
     Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
     licensed under CC BY 4.0
 */

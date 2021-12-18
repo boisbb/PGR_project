@@ -79,6 +79,7 @@ namespace test_model {
         bool shadows = true;
         bool dynamicReflections = true;
         bool renderObjects = true;
+        bool displayCube = false;
 
         int WIDTH;
         int HEIGHT;

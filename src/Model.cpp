@@ -3,10 +3,11 @@
 #include <filesystem>
 #include <sys/stat.h>
 
+
+// Inspired by:
+// https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
 inline glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from)
 {
-    // Inspired by:
-    // https://stackoverflow.com/questions/29184311/how-to-rotate-a-skinned-models-bones-in-c-using-assimp
     
     glm::mat4 to;
 
@@ -123,6 +124,14 @@ void Model::AddMesh(Mesh& mesh)
 {
 	meshes.push_back(mesh);
 }
+
+
+/*
+    Some of the code for below was influenced by code derived from this tutorial:
+    https://learnopengl.com/Model-Loading/Assimp
+    Author: Joe de Vriez (https://twitter.com/JoeyDeVriez)
+    licensed under CC BY 4.0
+*/
 
 
 /**

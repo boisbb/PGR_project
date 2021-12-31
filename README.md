@@ -1,4 +1,5 @@
 # PGR project
+acquired 30/30 pts
 
 ## Visualization of car models using OpenGL
 For further info about the program please read info in the documentation file.
